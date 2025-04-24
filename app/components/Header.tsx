@@ -1,7 +1,8 @@
 import Link from "next/link"
-import { Leaf } from "lucide-react"
+import { Leaf, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LanguageSwitcher from "./LanguageSwitcher"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export default function Header() {
   return (
@@ -31,6 +32,24 @@ export default function Header() {
                 Profile
               </Link>
             </nav>
+            <div className="flex md:hidden space-x-8">
+              <DropdownMenu >
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="rounded-full h-8 w-8">
+                    <User className="h-4 w-4" />
+                    <span className="sr-only">User menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-red-500">Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <LanguageSwitcher />
