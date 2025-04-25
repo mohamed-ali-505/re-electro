@@ -38,7 +38,11 @@ export function AdminSidebar() {
       href: "/admin/clients",
       icon: Building2,
     },
-   
+    {
+      title: "Redemptions",
+      href: "/admin/redemptions",
+      icon: ClipboardList,
+    },
   ]
 
   return (
