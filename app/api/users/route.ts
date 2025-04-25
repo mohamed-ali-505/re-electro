@@ -3,34 +3,45 @@ import dbConnect from "@/lib/dbConnect";
 import Users from "@/models/Users";
 
 // Function to handle GET request
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
     try {
         // Connect to the database
         await dbConnect();
 
-        // Parse the page query parameter from the URL
-        const url = new URL(request.url);
-        // const page = parseInt(url.searchParams.get("page") || "1", 10); // Default to page 1 if not specified
-        // const pageSize = 10; // Limit to 10 clients per page
-
         // Fetch clients with pagination
         const users = await Users.find()
-            // .skip((page - 1) * pageSize) // Skip clients from previous pages
-            // .limit(pageSize); // Limit to pageSize clients
-
-        // if (!clients.length) {
-        //     return NextResponse.json(
-        //         { error: "No clients found" },
-        //         { status: 404 }
-        //     );
-        // }
 
         // Return clients as JSON response
         return NextResponse.json(users);
     } catch (error) {
         console.error("Error fetching users:", error);
         return NextResponse.json(
-            { error: "Internal Server Error" },
+            { error: "Failed to fetch users" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PATCH(request: NextRequest) {
+    try {
+        await dbConnect();
+        const { name } = await request.json();
+        
+        // Get the current user (you might want to add authentication here)
+        const user = await Users.findOne({});
+        if (!user) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        // Update user's name
+        user.name = name;
+        await user.save();
+
+        return NextResponse.json(user);
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return NextResponse.json(
+            { error: "Failed to update user" },
             { status: 500 }
         );
     }

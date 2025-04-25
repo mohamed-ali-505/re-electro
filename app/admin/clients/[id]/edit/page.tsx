@@ -1,17 +1,17 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft } from "lucide-react"
+import axios from "axios"
+import { clientsTypes } from "@/models/Clients"
+import { toast } from "sonner"
 
 interface EditClientPageProps {
   params: {
@@ -25,45 +25,46 @@ export default function EditClientPage({ params }: EditClientPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
-    companyName: "",
-    contactPerson: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    plan: "",
-    notes: "",
+    name: "",
+    specialization: "",
+    discountPercentage: 0,
+    pointsRequired: 0,
+    type: ""
   })
 
   useEffect(() => {
-    // Fetch client data based on ID
     const fetchClientData = async () => {
       setIsLoading(true)
       try {
-        // In a real application, you would fetch data from your API
-        // For this example, we'll simulate an API call with mock data
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        console.log("Fetching client data for ID:", id)
+        const response = await axios.get(`/api/clients/${id}`)
+        const clientData = response.data
+        console.log("Received client data:", clientData)
+        
+        if (!clientData) {
+          toast.error("Client not found")
+          router.push("/admin/clients")
+          return
+        }
 
-        // Mock data for demonstration
         setFormData({
-          companyName: "Acme Corporation",
-          contactPerson: "John Doe",
-          email: "john.doe@acme.com",
-          phone: "+20 123 456 7890",
-          address: "123 Main Street",
-          city: "Cairo",
-          plan: "premium",
-          notes: "Large enterprise client with multiple locations.",
+          name: clientData.name || "",
+          specialization: clientData.specialization || "",
+          discountPercentage: clientData.discountPercentage || 0,
+          pointsRequired: clientData.pointsRequired || 0,
+          type: clientData.type || ""
         })
       } catch (error) {
         console.error("Error fetching client data:", error)
+        toast.error("Failed to load client data")
+        router.push("/admin/clients")
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchClientData()
-  }, [id])
+  }, [id, router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -79,16 +80,19 @@ export default function EditClientPage({ params }: EditClientPageProps) {
     setIsSubmitting(true)
 
     try {
-      // Here you would typically update the data via your API
-      console.log("Updating client data:", formData)
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Redirect to clients list after successful update
-      router.push("/admin/clients")
+      console.log("Submitting form data:", formData)
+      const response = await axios.put(`/api/clients/${id}`, formData)
+      console.log("Update response:", response.data)
+      
+      if (response.data) {
+        toast.success("Client updated successfully!")
+        router.push("/admin/clients")
+      } else {
+        throw new Error("No data received from server")
+      }
     } catch (error) {
       console.error("Error updating client:", error)
+      toast.error("Failed to update client")
     } finally {
       setIsSubmitting(false)
     }
@@ -96,8 +100,8 @@ export default function EditClientPage({ params }: EditClientPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p>Loading client data...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     )
   }
@@ -107,7 +111,7 @@ export default function EditClientPage({ params }: EditClientPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Edit Client</h1>
-          <p className="text-muted-foreground">Update information for client #{id}.</p>
+          <p className="text-muted-foreground">Update client information.</p>
         </div>
         <Button variant="outline" asChild>
           <Link href="/admin/clients" className="flex items-center gap-2">
@@ -121,64 +125,67 @@ export default function EditClientPage({ params }: EditClientPageProps) {
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle>Client Information</CardTitle>
-            <CardDescription>Update the details of this corporate client.</CardDescription>
+            <CardDescription>Update the details of the client.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name</Label>
+                <Label htmlFor="name">Name</Label>
                 <Input
-                  id="companyName"
-                  name="companyName"
-                  value={formData.companyName}
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contactPerson">Contact Person</Label>
+                <Label htmlFor="specialization">Specialization</Label>
                 <Input
-                  id="contactPerson"
-                  name="contactPerson"
-                  value={formData.contactPerson}
+                  id="specialization"
+                  name="specialization"
+                  value={formData.specialization}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+                <Label htmlFor="discountPercentage">Discount Percentage</Label>
+                <Input
+                  id="discountPercentage"
+                  name="discountPercentage"
+                  value={formData.discountPercentage}
+                  onChange={handleChange}
+                  type="number"
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} required />
+                <Label htmlFor="pointsRequired">Points Required</Label>
+                <Input
+                  id="pointsRequired"
+                  name="pointsRequired"
+                  value={formData.pointsRequired}
+                  onChange={handleChange}
+                  type="number"
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input id="address" name="address" value={formData.address} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" name="city" value={formData.city} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="plan">Subscription Plan</Label>
-                <Select value={formData.plan} onValueChange={(value) => handleSelectChange("plan", value)}>
-                  <SelectTrigger id="plan">
-                    <SelectValue placeholder="Select a plan" />
+                <Label htmlFor="type">Client Type</Label>
+                <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
+                  <SelectTrigger id="type">
+                    <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="standard">Standard</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                    {clientsTypes.map((type) => (
+                      <SelectItem value={type} key={type}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea id="notes" name="notes" value={formData.notes} onChange={handleChange} rows={4} />
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
@@ -186,7 +193,7 @@ export default function EditClientPage({ params }: EditClientPageProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? "Updating..." : "Update Client"}
             </Button>
           </CardFooter>
         </form>
