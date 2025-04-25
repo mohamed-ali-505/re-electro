@@ -1,10 +1,20 @@
+"use client"
 import Link from "next/link"
 import { Leaf, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import LanguageSwitcher from "./LanguageSwitcher"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { signOut, useSession } from "next-auth/react"
 
 export default function Header() {
+
+  const session = useSession();
+  console.log("session", session);
+
+
+  const handleLogout = () => {
+    signOut();
+  }
+
   return (
     <header className="w-full bg-green-600 shadow-md">
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -28,9 +38,9 @@ export default function Header() {
               <Link href="/about" className="text-sm font-medium text-white hover:text-green-100">
                 About Us
               </Link>
-              <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
+              {session?.data?.user && <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
                 Profile
-              </Link>
+              </Link>}
             </nav>
             <div className="flex md:hidden space-x-8">
               <DropdownMenu >
@@ -52,15 +62,22 @@ export default function Header() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <LanguageSwitcher />
             <Link href="/recycle">
               <Button className="bg-white text-gray-900 hover:bg-gray-100 font-medium">Recycle Now</Button>
             </Link>
+            {session?.data?.user && <Button
+              variant={"outline"}
+              onClick={() => {
+                handleLogout();
+              }}
+            >
+              Logout
+            </Button>}
           </div>
         </div>
 
         {/* Corporate Buttons */}
-        <div className="flex justify-center space-x-4 py-4 border-t border-green-500">
+        {!session?.data?.user && <div className="flex justify-center space-x-4 py-4 border-t border-green-500">
           <Link href="/signup">
             <Button className="bg-gray-900 hover:bg-gray-800 text-white font-medium">Corporate Signup</Button>
           </Link>
@@ -69,7 +86,7 @@ export default function Header() {
               Corporate Login
             </Button>
           </Link>
-        </div>
+        </div>}
       </div>
     </header>
   )

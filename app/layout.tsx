@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import AppProvider from "@/lib/AppProvider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,19 +22,26 @@ export const metadata: Metadata = {
   description: "Re-Electro is a platform that connects individuals and businesses with certified electronic waste recycling facilities in Cairo.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions) // Explicitly pass authOptions
+  console.log("session", session);
+  
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-        <Toaster richColors/>
-      </body>
+
+      <AppProvider session={session}>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          {children}
+          <Toaster richColors />
+        </body>
+      </AppProvider>
     </html>
   );
 }

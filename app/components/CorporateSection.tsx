@@ -1,8 +1,10 @@
+"use client"
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Building2, Recycle, BarChart } from 'lucide-react'
-
+import { useSession } from 'next-auth/react'
 export default function CorporateSection() {
+  const session = useSession();
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,14 +52,14 @@ export default function CorporateSection() {
           </div>
         </div>
 
-        <div className="mt-10 flex justify-center space-x-6">
+        {!session?.data?.user && <div className="mt-10 flex justify-center space-x-6">
           <Button asChild>
             <Link href="/corporate/signup">Sign Up Your Company</Link>
           </Button>
           <Button variant="outline" asChild>
             <Link href="/corporate/login">Corporate Login</Link>
           </Button>
-        </div>
+        </div>}
       </div>
     </section>
   )
