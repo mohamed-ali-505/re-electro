@@ -17,59 +17,13 @@ export default function CorporateLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter()
-
-  // const [formData, setFormData] = useState({
-  //   name: "",
-  //   phone: "",
-  //   email: "",
-  //   password: "",
-  // })
-
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false)
+  const [verificationInput, setVerificationInput] = useState("")
+  const [verifyError, setVerifyError] = useState<string | null>(null)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendMessage, setResendMessage] = useState<string | null>(null)
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const form = useForm()
-
-  // const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  //   const { name, value } = e.target
-  //   setFormData((prev) => ({ ...prev, [name]: value }))
-  // }
-
-  // const onSubmit = async (data: any) => {
-  //   // e.preventDefault();  // Prevent form default submit action
-  //   console.log(data)
-  //   setIsSubmitting(true);  // Show loading state
-  //   // Prepare the data to be sent in the POST user
-  //   const userData = {
-  //     name: formData.name,
-  //     email: formData.email,
-  //     phone: formData.phone,
-  //     password: formData.password
-  //   };
-
-  //   try {
-  //     // Send the POST user using Axios
-  //     const response = await axios.post("/api/createUser", userData);
-
-  //     // Handle success (you can update the UI or show a success message)
-  //     console.log("user created:", response.data);
-  //     toast.success("user created successfully!");
-  //     setIsSubmitting(false)
-  //     // Reset form fields after successful submission
-  //     setFormData({
-  //       name: "",
-  //       phone: "",
-  //       email: "",
-  //       password: ""
-  //     })
-  //   } catch (error) {
-  //     setIsSubmitting(false);
-  //     if (axios.isAxiosError(error)) {
-  //       const errorMessage = error.response?.data?.error || "An unknown error occurred";
-  //       toast.error(errorMessage.toString());
-  //     } else {
-  //       console.error("Unexpected error:", error);
-  //       toast.error("An unexpected error occurred. Please try again.");
-  //     }
-  //   }
-  // };
 
   const onSubmit = async (data: any) => {
     setErrorMessage(null);
@@ -107,6 +61,10 @@ export default function CorporateLogin() {
         if (errors.notAllow) {
           setErrorMessage(errors.notAllow);
         }
+        if (errors.notVerified) {
+          // If the backend returns a notVerified error, show the dialog
+          setShowVerifyDialog(true)
+        }
       } else {
         setIsSubmitting(false)
         router.refresh();
@@ -118,6 +76,63 @@ export default function CorporateLogin() {
       // setErrorMessage('Unexpected error occurred. Please try again.'); // Display general error
     }
   };
+
+  // Handler for verification input submission
+  const handleVerify = async () => {
+    setVerifyError(null);
+    setResendMessage(null);
+    setVerifyLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.getValues('email'),
+          otp: verificationInput,
+        }),
+      });
+
+      if (res.ok) {
+        // Optionally, you can close the dialog and show a success message or log the user in
+        setShowVerifyDialog(false);
+        // Optionally, you can show a toast or redirect
+        // router.replace('/profile') or router.refresh();
+      } else {
+        const data = await res.json();
+        setVerifyError(data.error || 'Invalid verification code');
+      }
+    } catch (err) {
+      console.error('Failed to verify code:', err)
+      setVerifyError('Failed to verify code. Please try again.');
+    }
+
+    setVerifyLoading(false);
+  };
+
+  // Handler for resending verification code
+  const handleResendCode = async () => {
+    setResendLoading(true)
+    setResendMessage(null)
+    setVerifyError(null)
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.getValues('email') }),
+      })
+      if (res.ok) {
+        setResendMessage('Verification code sent!')
+      } else {
+        const data = await res.json()
+        setVerifyError(data.error || 'Failed to resend code')
+      }
+    } catch (error) {
+      console.error('Failed to resend code:', error)
+      setVerifyError('Failed to resend code')
+    }
+    setResendLoading(false)
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -180,6 +195,37 @@ export default function CorporateLogin() {
               </div>
 
             </form> */}
+            {/* Dialog for email verification */}
+            {showVerifyDialog && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+                  <h2 className="text-lg font-bold mb-2">Email Not Verified</h2>
+                  <p className="mb-4">Please enter the verification code sent to your email.</p>
+                  <input
+                    type="text"
+                    className="border p-2 w-full mb-2"
+                    placeholder="Verification code"
+                    value={verificationInput}
+                    onChange={e => setVerificationInput(e.target.value)}
+                  />
+                  {verifyError && <p className="text-red-500">{verifyError}</p>}
+                  {resendMessage && <p className="text-green-600">{resendMessage}</p>}
+                  <div className="flex gap-2">
+                    <Button onClick={handleVerify} disabled={verifyLoading}>
+                      {verifyLoading ? "Verifying..." : "Verify"}
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowVerifyDialog(false)}>Cancel</Button>
+                    <Button
+                      variant="secondary"
+                      onClick={handleResendCode}
+                      disabled={resendLoading}
+                    >
+                      {resendLoading ? "Resending..." : "Resend Code"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Link

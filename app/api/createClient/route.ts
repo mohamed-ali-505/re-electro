@@ -22,7 +22,10 @@ export async function POST(request: Request) {
             specialization,
             discountPercentage,
             pointsRequired,
-            type
+            type,
+            verified: false,
+            otp: null,
+            otpExpiry: null
         });
 
         // Save the client to the database

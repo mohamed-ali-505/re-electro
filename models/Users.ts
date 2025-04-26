@@ -12,6 +12,9 @@ const UsersSchema = new mongoose.Schema({
         enum: ROLE, // Define allowed values for 'type'
         required: true,
     },
+    isVerified: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpiry: { type: Date },
 }, {
     timestamps: true,
     versionKey: false,

@@ -46,6 +46,11 @@ export const authOptions: AuthOptions = {
                     throw new Error(JSON.stringify({ notAllow: "You are not authorized to access this application" }));
                 }
 
+                if (user.isVerified === false) {
+
+                    throw new Error(JSON.stringify({ notVerified: "Email is not verified!" }));
+                }
+
                 return {
                     id: user._id.toString(), // Adding id
                     email: user.email,
