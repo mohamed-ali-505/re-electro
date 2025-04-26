@@ -38,7 +38,7 @@ export default function Header() {
               <Link href="/about" className="text-sm font-medium text-white hover:text-green-100">
                 About Us
               </Link>
-              {session?.data?.user && <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
+              {session?.data?.user.role === "user" && <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
                 Profile
               </Link>}
             </nav>

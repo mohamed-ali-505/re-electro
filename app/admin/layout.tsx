@@ -1,12 +1,21 @@
 import type { ReactNode } from "react"
 import { AdminSidebar } from "./_components/admin-sidebar"
 import { AdminHeader } from "./_components/admin-header"
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import { redirect } from "next/navigation";
 
 interface AdminLayoutProps {
   children: ReactNode
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default async function AdminLayout({ children }: AdminLayoutProps) {
+  const session = await getServerSession(authOptions); // Explicitly pass authOptions
+
+  if (session?.user?.role !== "admin") {
+    redirect('/');
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <AdminHeader />

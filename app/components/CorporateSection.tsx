@@ -54,10 +54,10 @@ export default function CorporateSection() {
 
         {!session?.data?.user && <div className="mt-10 flex justify-center space-x-6">
           <Button asChild>
-            <Link href="/corporate/signup">Sign Up Your Company</Link>
+            <Link href="/signup">Sign Up Your Company</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/corporate/login">Corporate Login</Link>
+            <Link href="/login">Corporate Login</Link>
           </Button>
         </div>}
       </div>
