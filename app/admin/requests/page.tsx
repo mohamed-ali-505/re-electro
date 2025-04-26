@@ -1,49 +1,3 @@
-// "use client"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import { useState, useEffect } from "react"
-
-// import axios from "axios"
-
-// export default function ClientsPage() {
-
-//     const [data, setData] = useState()
-
-//     const fetchData = async () => {
-//         try {
-//             const response = await axios.get(`/api/clients`);
-//             // setLoading(false);
-//             setData(response.data);
-//         } catch {
-//             // setLoading(false);
-
-//         }
-//     };
-
-//     useEffect(() => {
-//         fetchData()
-//     }, [])
-
-//     return (
-//         <div className="space-y-6">
-//             <div>
-//                 <h1 className="text-3xl font-bold tracking-tight">Corporate Clients</h1>
-//                 <p className="text-muted-foreground">Manage all corporate clients registered in the system.</p>
-//             </div>
-
-//             <Card>
-//                 <CardHeader>
-//                     <CardTitle>Clients List</CardTitle>
-//                 </CardHeader>
-//                 <CardContent>
-//                     <div className="h-[400px] rounded-md border border-dashed flex items-center justify-center">
-//                         Clients table will be displayed here
-//                     </div>
-//                 </CardContent>
-//             </Card>
-//         </div>
-//     )
-// }
-
 "use client"
 
 import Link from "next/link"
@@ -51,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Search, Edit, Trash } from "lucide-react"
+import { Plus, Search, Edit, Trash, Eye } from "lucide-react"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { RequestType } from "@/types"
@@ -67,7 +21,8 @@ export default function RequestsPage() {
   const [data, setData] = useState<RequestType[]>([])
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<RequestType | null>(null);
 
   const [formData, setFormData] = useState({
     status: "",
@@ -160,6 +115,10 @@ export default function RequestsPage() {
     }
   };
 
+  const handleViewDetails = (request: RequestType) => {
+    setSelectedRequest(request);
+    setDetailsOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -229,12 +188,12 @@ export default function RequestsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>status</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Items</TableHead>
+                <TableHead className="max-w-[150px]">Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="max-w-[150px]">Email</TableHead>
+                <TableHead className="max-w-[120px]">Phone</TableHead>
+                <TableHead className="max-w-[200px]">Address</TableHead>
+                <TableHead className="max-w-[200px]">Items</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -246,24 +205,49 @@ export default function RequestsPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 filteredRequests.map((request) => (
                   <TableRow key={request._id}>
-                    <TableCell className="font-medium">{request.name}</TableCell>
+                    <TableCell className="font-medium max-w-[150px] truncate" title={request.name}>
+                      {request.name}
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={request.status as any} />
                     </TableCell>
-                    <TableCell>{request.email}</TableCell>
-                    <TableCell>{request.phone}</TableCell>
-                    <TableCell>{request.address}</TableCell>
-                    <TableCell>{request.items}</TableCell>
+                    <TableCell className="max-w-[150px] truncate" title={request.email}>
+                      {request.email}
+                    </TableCell>
+                    <TableCell className="max-w-[120px] truncate" title={request.phone}>
+                      {request.phone}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate" title={request.address}>
+                      {request.address}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate" title={request.items}>
+                      {request.items}
+                    </TableCell>
                     <TableCell className="text-right">
-                      {request.status !== "completed" && <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleOpen({ id: request._id, email: request.email, phone: request.phone })}>
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleViewDetails(request)}
+                          title="View Details"
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View Details</span>
                         </Button>
-                      </div>}
+                        {request.status !== "completed" && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleOpen({ id: request._id, email: request.email, phone: request.phone })}
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -272,6 +256,48 @@ export default function RequestsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Details Dialog */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Request Details</DialogTitle>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Name</Label>
+                  <p className="text-sm">{selectedRequest.name}</p>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <StatusBadge status={selectedRequest.status as any} />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <p className="text-sm">{selectedRequest.email}</p>
+                </div>
+                <div>
+                  <Label>Phone</Label>
+                  <p className="text-sm">{selectedRequest.phone}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label>Address</Label>
+                  <p className="text-sm">{selectedRequest.address}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label>Items</Label>
+                  <p className="text-sm">{selectedRequest.items}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

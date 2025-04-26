@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useState, useMemo, useEffect } from "react"
-import Header from "../components/Header"
 import Footer from "../components/Footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search } from "lucide-react"
 import axios from "axios"
 import { toast } from "sonner"
+import Header from "../components/Header"
 
 interface Client {
   _id: string
@@ -46,6 +46,36 @@ export default function PointsPage() {
       toast.error("Failed to fetch points")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleRedeemDiscount = async (clientId: string) => {
+    if (!email) {
+      toast.error('Please enter your email first')
+      return
+    }
+    try {
+      const response = await axios.post('/api/discount-redemptions', {
+        discountId: clientId,
+        email,
+        name: email.split('@')[0]
+      })
+
+      if (response.data) {
+        toast.success('Discount redemption request submitted successfully')
+        // Refresh points
+        const userResponse = await axios.get(`/api/users/points?email=${email}`)
+        if (userResponse.data && !userResponse.data.error) {
+          setPoints(userResponse.data.points)
+        }
+      }
+    } catch (error) {
+      console.error('Error redeeming discount:', error)
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.error || 'Failed to redeem discount')
+      } else {
+        toast.error('Failed to redeem discount')
+      }
     }
   }
 
@@ -92,6 +122,7 @@ export default function PointsPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="border-gray-300"
+                    required
                   />
                   <Button 
                     type="submit" 
@@ -137,9 +168,9 @@ export default function PointsPage() {
                 )}
                 <ScrollArea className="h-[450px]">
                   <div className="grid gap-4 pr-4">
-                    {filteredDiscounts.map((client, index) => (
+                    {filteredDiscounts.map((client) => (
                       <Card
-                        key={client._id || index}
+                        key={client._id}
                         className="flex justify-between items-center p-4 border border-gray-200 shadow-sm"
                       >
                         <div>
@@ -158,6 +189,7 @@ export default function PointsPage() {
                             className="mt-2 bg-green-600 hover:bg-green-700 text-white font-medium"
                             size="sm"
                             disabled={points < client.pointsRequired}
+                            onClick={() => handleRedeemDiscount(client._id)}
                           >
                             Redeem
                           </Button>

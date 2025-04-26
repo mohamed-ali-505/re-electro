@@ -20,6 +20,21 @@ interface Request {
   createdAt: string
 }
 
+interface Redemption {
+  status: string
+  points: number
+  createdAt: string
+}
+
+interface DiscountRedemption {
+  status: string
+  points: number
+  createdAt: string
+  discount: {
+    name: string
+  }
+}
+
 interface DashboardStats {
   totalUsers: number
   registeredUsers: number
@@ -30,6 +45,12 @@ interface DashboardStats {
   corporateClients: number
   recentActivity: Request[]
   topUsers: User[]
+  pendingRedemptions: number
+  completedRedemptions: number
+  totalRedemptions: number
+  pendingDiscountRedemptions: number
+  completedDiscountRedemptions: number
+  totalDiscountRedemptions: number
 }
 
 export default function AdminDashboard() {
@@ -42,20 +63,30 @@ export default function AdminDashboard() {
     totalRequests: 0,
     corporateClients: 0,
     recentActivity: [],
-    topUsers: []
+    topUsers: [],
+    pendingRedemptions: 0,
+    completedRedemptions: 0,
+    totalRedemptions: 0,
+    pendingDiscountRedemptions: 0,
+    completedDiscountRedemptions: 0,
+    totalDiscountRedemptions: 0
   })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [usersResponse, requestsResponse] = await Promise.all([
+        const [usersResponse, requestsResponse, redemptionsResponse, discountRedemptionsResponse] = await Promise.all([
           axios.get('/api/users'),
-          axios.get('/api/requests')
+          axios.get('/api/requests'),
+          axios.get('/api/redemptions'),
+          axios.get('/api/discount-redemptions')
         ])
 
         const users = usersResponse.data as User[]
         const requests = requestsResponse.data as Request[]
+        const redemptions = redemptionsResponse.data as Redemption[]
+        const discountRedemptions = discountRedemptionsResponse.data as DiscountRedemption[]
 
         // Debug logging
         console.log('All users:', users)
@@ -92,6 +123,16 @@ export default function AdminDashboard() {
 
         console.log('Final top users:', topUsers)
 
+        // Calculate redemption stats
+        const pendingRedemptions = redemptions.filter(r => r.status === 'pending').length
+        const completedRedemptions = redemptions.filter(r => r.status === 'approved').length
+        const totalRedemptions = redemptions.length
+
+        // Calculate discount redemption stats
+        const pendingDiscountRedemptions = discountRedemptions.filter(r => r.status === 'pending').length
+        const completedDiscountRedemptions = discountRedemptions.filter(r => r.status === 'approved').length
+        const totalDiscountRedemptions = discountRedemptions.length
+
         setStats({
           totalUsers: users.length,
           registeredUsers,
@@ -101,7 +142,13 @@ export default function AdminDashboard() {
           totalRequests,
           corporateClients,
           recentActivity,
-          topUsers
+          topUsers,
+          pendingRedemptions,
+          completedRedemptions,
+          totalRedemptions,
+          pendingDiscountRedemptions,
+          completedDiscountRedemptions,
+          totalDiscountRedemptions
         })
       } catch (error) {
         console.error('Error fetching dashboard stats:', error)
@@ -162,6 +209,46 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="text-2xl font-bold">{isLoading ? "..." : stats.totalRequests}</div>
                 <p className="text-xs text-muted-foreground">All recycling requests</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Redemptions</CardTitle>
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{isLoading ? "..." : stats.pendingRedemptions}</div>
+                <p className="text-xs text-muted-foreground">Money redemption requests</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Completed Redemptions</CardTitle>
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{isLoading ? "..." : stats.completedRedemptions}</div>
+                <p className="text-xs text-muted-foreground">Approved money redemptions</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Discounts</CardTitle>
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{isLoading ? "..." : stats.pendingDiscountRedemptions}</div>
+                <p className="text-xs text-muted-foreground">Discount redemption requests</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Completed Discounts</CardTitle>
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{isLoading ? "..." : stats.completedDiscountRedemptions}</div>
+                <p className="text-xs text-muted-foreground">Approved discount redemptions</p>
               </CardContent>
             </Card>
           </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Leaf, Users, ClipboardList, Building2, BarChart, LogOut } from "lucide-react"
+import { Leaf, Users, ClipboardList, Building2, BarChart, LogOut, Receipt } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +42,11 @@ export function AdminSidebar() {
       title: "Redemptions",
       href: "/admin/redemptions",
       icon: ClipboardList,
+    },
+    {
+      title: "discount redemptions",
+      href: "/admin/discount-redemptions",
+      icon: Receipt,
     },
   ]
 
