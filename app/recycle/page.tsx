@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import { Button } from "@/components/ui/button"
@@ -12,9 +12,21 @@ import { Label } from "@/components/ui/label"
 import { ImageUpload } from "../components/ImageUpload"
 
 import axios from "axios"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
+
+interface UserData {
+  name: string
+  email: string
+  points: number
+  phone: string
+}
 
 export default function RecyclePage() {
+  const [userData, setUserData] = useState<UserData>()
   const [imageFile, setImageFile] = useState<File | null>(null)
+  console.log(imageFile)
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
@@ -23,6 +35,31 @@ export default function RecyclePage() {
     address: "",
     items: ""
   })
+  const user = useSession()
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get('/api/users/' + user.data?.user.userId)
+      setUserData(response.data)
+      setFormData((prev) => ({
+        ...prev,
+        name: response.data.name,
+        email: response.data.email,
+        phone: response.data.phone
+      }))
+
+    } catch (error) {
+      console.error('Error fetching user data:', error)
+      toast.error('Failed to load user data')
+    }
+  }
+
+  useEffect(() => {
+    if (user.status === "authenticated") {
+      fetchUserData()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -41,30 +78,38 @@ export default function RecyclePage() {
       items: formData.items
     };
 
-    console.log(requestData);
-    
-
     try {
       // Send the POST request using Axios
-      const response = await axios.post("/api/createRequest", requestData);
+      await axios.post("/api/createRequest", requestData);
 
-      // Handle success (you can update the UI or show a success message)
-      console.log("request created:", response.data);
-      alert("request created successfully!");
+      toast.success("Request created successfully!")
       setIsSubmitting(false)
+
+      console.log(user.status)
+
       // Reset form fields after successful submission
-      setFormData({
-        name: "",
-        phone: "",
-        address: "",
-        email: "",
-        items: ""
-      })
-    } catch (error) {
+      if (user.status === "authenticated" && userData) {
+        setFormData((prev) => ({
+          ...prev,
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phone,
+          address: "",
+          items: ""
+        }))
+      } else {
+        setFormData({
+          name: "",
+          phone: "",
+          address: "",
+          email: "",
+          items: ""
+        })
+      }
+
+    } catch {
       setIsSubmitting(false)
-      // Handle error (you can display an error message)
-      console.error("Error creating request:", error);
-      alert("Failed to create requestData.");
+      toast.error("Failed to create requestData.")
     }
   };
 
@@ -80,7 +125,8 @@ export default function RecyclePage() {
               <Input
                 id="name"
                 name="name"
-                value={formData.name}
+                value={formData.name || userData?.name}
+                disabled={!!userData?.name}
                 onChange={handleChange}
                 required
               />
@@ -90,8 +136,9 @@ export default function RecyclePage() {
               <Input
                 id="email"
                 name="email"
-                value={formData.email}
+                value={formData.email || userData?.email}
                 onChange={handleChange}
+                disabled={!!userData?.email}
                 required
               />
             </div>
@@ -100,7 +147,8 @@ export default function RecyclePage() {
               <Input
                 id="phone"
                 name="phone"
-                value={formData.phone}
+                value={formData.phone || userData?.phone}
+                disabled={!!userData?.phone}
                 onChange={handleChange}
                 required
               />
@@ -132,7 +180,7 @@ export default function RecyclePage() {
               </div>
             </div>
             <Button type="submit" className="w-full">
-              Submit Request
+              {isSubmitting ? "Submitting..." : "Submit Request"}
             </Button>
           </form>
         </div>

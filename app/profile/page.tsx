@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Pencil, Save, X } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 
 interface UserData {
   name: string
@@ -49,18 +50,19 @@ export default function ProfilePage() {
   const [editedName, setEditedName] = useState('')
   const [redemptionHistory, setRedemptionHistory] = useState<RedemptionRequest[]>([])
 
+  const user = useSession()
+
   useEffect(() => {
     fetchUserData()
     fetchRedemptionHistory()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/users')
-      if (response.data && response.data.length > 0) {
-        setUserData(response.data[0])
-        setEditedName(response.data[0].name)
-      }
+      const response = await axios.get('/api/users/' + user.data?.user.userId)
+      setUserData(response.data)
+
     } catch (error) {
       console.error('Error fetching user data:', error)
       toast.error('Failed to load user data')
@@ -69,7 +71,7 @@ export default function ProfilePage() {
 
   const fetchRedemptionHistory = async () => {
     try {
-      const response = await axios.get('/api/redemptions')
+      const response = await axios.get('/api/redemptions/users/' + user.data?.user.userId)
       setRedemptionHistory(response.data)
     } catch (error) {
       console.error('Error fetching redemption history:', error)
@@ -195,7 +197,7 @@ export default function ProfilePage() {
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold mb-8">Profile</h1>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column - User Info and Redemption Form */}
             <div className="space-y-6">
@@ -312,7 +314,7 @@ export default function ProfilePage() {
                       <p className="text-sm text-gray-500">Points to be used: {sliderValue[0] * 10}</p>
                       <p className="text-sm text-gray-500">You will receive: {sliderValue[0]} pounds</p>
                     </div>
-                    <Button 
+                    <Button
                       onClick={handleRedeem}
                       disabled={isLoading || sliderValue[0] <= 0 || sliderValue[0] * 10 > userData.points}
                     >

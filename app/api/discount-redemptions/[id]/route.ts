@@ -39,11 +39,6 @@ export async function PATCH(
       await user.save()
     }
 
-    // If status is being changed to rejected and was pending, return points to user
-    if (status === "rejected" && redemptionRequest.status === "pending") {
-      user.points += redemptionRequest.points
-      await user.save()
-    }
 
     // Update redemption request status
     redemptionRequest.status = status
