@@ -10,6 +10,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
         // Parse the page query parameter from the URL
         const url = new URL(request.url);
+        console.log(url);
+        
         // const page = parseInt(url.searchParams.get("page") || "1", 10); // Default to page 1 if not specified
         // const pageSize = 10; // Limit to 10 clients per page
 

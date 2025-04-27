@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import Footer from "../components/Footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,23 +29,53 @@ export default function PointsPage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [clients, setClients] = useState<Client[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [otpLoading, setOtpLoading] = useState(false)
+  const [otpError, setOtpError] = useState<string | null>(null)
+  const [otpSent, setOtpSent] = useState(false)
+  const otpInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setOtpError(null)
+    setOtp("")
+    setOtpDialogOpen(true)
+    setOtpSent(false)
+    setShowPoints(false)
     try {
-      const response = await axios.get(`/api/users/points?email=${email}`)
-      if (response.data.error) {
-        toast.error(response.data.error)
-        return
-      }
-      setPoints(response.data.points)
-      setShowPoints(true)
-    } catch (error) {
-      console.error("Error fetching points:", error)
-      toast.error("Failed to fetch points")
+      await axios.post("/api/auth/resend-otp-points", { email })
+      setOtpSent(true)
+    } catch {
+      setOtpError("Failed to send OTP. Please try again.")
+      setOtpDialogOpen(false)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    setOtpLoading(true)
+    setOtpError(null)
+    try {
+      const res = await axios.post("/api/auth/verify-points", { email, otp })
+      if (res.status === 200 && res.data.verified) {
+        const response = await axios.get(`/api/users/points?email=${email}`)
+        if (response.data.error) {
+          toast.error(response.data.error)
+        } else {
+          setPoints(response.data.points)
+          setShowPoints(true)
+          setOtpDialogOpen(false)
+        }
+      } else {
+        setOtpError("Invalid OTP. Please try again.")
+      }
+    } catch {
+      setOtpError("Invalid OTP. Please try again.")
+    } finally {
+      setOtpLoading(false)
     }
   }
 
@@ -202,6 +232,36 @@ export default function PointsPage() {
             </Card>
           </div>
         </div>
+        {otpDialogOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+              <h2 className="text-lg font-bold mb-2">OTP Verification</h2>
+              <p className="mb-4">
+                {otpSent
+                  ? "Enter the OTP sent to your email."
+                  : "Sending OTP..."}
+              </p>
+              <input
+                ref={otpInputRef}
+                type="text"
+                className="border p-2 w-full mb-2"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={e => setOtp(e.target.value)}
+                disabled={!otpSent}
+              />
+              {otpError && <p className="text-red-500">{otpError}</p>}
+              <div className="flex gap-2">
+                <Button onClick={handleVerifyOtp} disabled={otpLoading || !otpSent}>
+                  {otpLoading ? "Verifying..." : "Verify"}
+                </Button>
+                <Button variant="outline" onClick={() => setOtpDialogOpen(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>

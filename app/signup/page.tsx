@@ -12,6 +12,8 @@ import { toast } from 'sonner'
 
 export default function CorporateSignup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  console.log(isSubmitting);
+  
   const [formData, setFormData] = useState({
     name: "",
     phone: "",

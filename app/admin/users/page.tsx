@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Edit } from "lucide-react"
+import { Search } from "lucide-react"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { UsersType } from "@/types"
@@ -12,7 +12,6 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogD
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RequestStatus } from "@/models/Requests"
-import StatusBadge from "@/components/StatusColor"
 
 export default function RequestsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -58,19 +57,6 @@ export default function RequestsPage() {
     fetchData()
   }, [])
 
-  const handleOpen = ({
-    id,
-    email,
-    phone,
-  }: {
-    id: string,
-    email: string,
-    phone: string,
-  }) => {
-    setOpen(true);
-    setFormData((prev) => ({ ...prev, id, email, phone }));
-  }
-
   const handleClose = () => {
     setOpen(false);
   }
@@ -87,7 +73,7 @@ export default function RequestsPage() {
 
     try {
       // Send the POST request using Axios
-      const response = await axios.post("/api/createRequest", requestData);
+      await axios.post("/api/createRequest", requestData);
 
       // Handle success (you can update the UI or show a success message)
 

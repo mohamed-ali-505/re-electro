@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Requests, { RequestStatus } from "@/models/Requests";
-import Points from "@/models/Points";
 import Users from "@/models/Users";
 
 // POST request to create or update a request
@@ -13,7 +12,6 @@ export async function POST(request: Request) {
 
         await dbConnect();
         let savedRequest;
-        let savedUser;
 
         const user = await Users.findOne({ $or: [{ email: email }, { phone: phone }] });
 
@@ -62,7 +60,7 @@ export async function POST(request: Request) {
                     password: "guest",
                     points: 0,
                 });
-                savedUser = await newUser.save();
+                await newUser.save();
             }
 
             const newRequest = new Requests({

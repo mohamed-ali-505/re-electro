@@ -1,11 +1,10 @@
 "use client"
 
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Search, Edit, Trash, Eye } from "lucide-react"
+import { Search, Edit, Eye } from "lucide-react"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { RequestType } from "@/types"
@@ -65,7 +64,7 @@ export default function RequestsPage() {
     id,
     email,
     phone,
-  }:{
+  }: {
     id: string,
     email: string,
     phone: string,
@@ -90,7 +89,7 @@ export default function RequestsPage() {
 
     try {
       // Send the POST request using Axios
-      const response = await axios.post("/api/createRequest", requestData);
+      await axios.post("/api/createRequest", requestData);
 
       // Handle success (you can update the UI or show a success message)
 
@@ -227,9 +226,9 @@ export default function RequestsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleViewDetails(request)}
                           title="View Details"
                         >
@@ -237,9 +236,9 @@ export default function RequestsPage() {
                           <span className="sr-only">View Details</span>
                         </Button>
                         {request.status !== "completed" && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleOpen({ id: request._id, email: request.email, phone: request.phone })}
                             title="Edit"
                           >

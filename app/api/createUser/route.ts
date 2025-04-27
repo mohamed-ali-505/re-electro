@@ -14,7 +14,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "All fields are required" }, { status: 400 });
         }
 
-        const existingUser = await Users.findOne({ $or: [{ email: email }, { phone: phone }] });
+        const existingUser = await Users.findOne({ $or: [{ email: email }] });
         
         if (existingUser) {
             return NextResponse.json({ error: "User already exists" }, { status: 400 });
@@ -30,6 +30,11 @@ export async function POST(request: Request) {
             phone,
             role: "user",
             points: 0,
+            isVerified: false,
+            otp: undefined,
+            otpExpiry: undefined,
+            otpPoint: undefined,
+            otpPointExpiry: undefined,
         });
 
         // Save the client to the database
