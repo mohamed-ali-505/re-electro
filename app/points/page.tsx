@@ -35,6 +35,8 @@ export default function PointsPage() {
   const [otpError, setOtpError] = useState<string | null>(null)
   const [otpSent, setOtpSent] = useState(false)
   const otpInputRef = useRef<HTMLInputElement>(null)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendMessage, setResendMessage] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +62,7 @@ export default function PointsPage() {
     setOtpError(null)
     try {
       const res = await axios.post("/api/auth/verify-points", { email, otp })
-      if (res.status === 200 && res.data.verified) {
+      if (res) {
         const response = await axios.get(`/api/users/points?email=${email}`)
         if (response.data.error) {
           toast.error(response.data.error)
@@ -107,6 +109,19 @@ export default function PointsPage() {
         toast.error('Failed to redeem discount')
       }
     }
+  }
+
+  const handleResendOtp = async () => {
+    setResendLoading(true)
+    setResendMessage(null)
+    setOtpError(null)
+    try {
+      await axios.post("/api/auth/resend-otp-points", { email })
+      setResendMessage("OTP resent successfully!")
+    } catch {
+      setOtpError("Failed to resend OTP. Please try again.")
+    }
+    setResendLoading(false)
   }
 
   const filteredDiscounts = useMemo(() => {
@@ -251,12 +266,20 @@ export default function PointsPage() {
                 disabled={!otpSent}
               />
               {otpError && <p className="text-red-500">{otpError}</p>}
+              {resendMessage && <p className="text-green-600">{resendMessage}</p>}
               <div className="flex gap-2">
                 <Button onClick={handleVerifyOtp} disabled={otpLoading || !otpSent}>
                   {otpLoading ? "Verifying..." : "Verify"}
                 </Button>
                 <Button variant="outline" onClick={() => setOtpDialogOpen(false)}>
                   Cancel
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleResendOtp}
+                  disabled={resendLoading}
+                >
+                  {resendLoading ? "Resending..." : "Resend OTP"}
                 </Button>
               </div>
             </div>

@@ -33,8 +33,8 @@ export async function POST(request: Request) {
             isVerified: false,
             otp: undefined,
             otpExpiry: undefined,
-            otpPoint: undefined,
-            otpPointExpiry: undefined,
+            otpPoint: "",
+            otpPointExpiry: null,
         });
 
         // Save the client to the database

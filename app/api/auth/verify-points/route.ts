@@ -8,10 +8,20 @@ export async function POST(req: Request) {
 
     // Find user by email
     const user = await Users.findOne({ email });
+    console.log(user);
+    
 
     if (!user) {
         return new Response("User not found", { status: 404 });
     }
+
+    console.log(user.otpPoint);
+    console.log(user.otpPointExpiry);
+
+    console.log(user.otpPoint !== otp);
+    console.log(user.otpPointExpiry.getTime() < Date.now());
+    
+    
     
     // Check OTP and expiry
     if (user.otpPoint !== otp || (user.otpPointExpiry.getTime() < Date.now())) {
