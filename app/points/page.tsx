@@ -62,6 +62,8 @@ export default function PointsPage() {
     setOtpError(null)
     try {
       const res = await axios.post("/api/auth/verify-points", { email, otp })
+      console.log(res)
+      
       if (res) {
         const response = await axios.get(`/api/users/points?email=${email}`)
         if (response.data.error) {

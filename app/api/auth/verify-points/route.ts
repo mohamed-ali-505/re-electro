@@ -28,8 +28,8 @@ export async function POST(req: Request) {
         return new Response("Invalid or expired OTP", { status: 400 });
     }
 
-    user.otpPoint = undefined;
-    user.otpPointExpiry = undefined;
+    user.otpPoint = "";
+    user.otpPointExpiry = null;
 
     await user.save();
 

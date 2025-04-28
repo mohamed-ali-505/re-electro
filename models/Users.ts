@@ -15,8 +15,8 @@ const UsersSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     otp: { type: String },
     otpExpiry: { type: Date },
-    otpPoint: { type: String, default: "", required: true },
-    otpPointExpiry: { type: Date, default: null, required: true },
+    otpPoint: { type: String },
+    otpPointExpiry: { type: Date },
 }, {
     timestamps: true,
     versionKey: false,
