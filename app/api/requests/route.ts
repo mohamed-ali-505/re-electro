@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Requests from "@/models/Requests";
 
+export const dynamic = 'force-dynamic'
+
 // Function to handle GET request
 export async function GET(request: NextRequest): Promise<NextResponse> {
     try {

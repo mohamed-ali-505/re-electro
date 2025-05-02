@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import dbConnect from "@/lib/dbConnect"
 import Users from "@/models/Users"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     await dbConnect()
