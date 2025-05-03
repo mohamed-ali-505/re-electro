@@ -10,7 +10,10 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  const session = await getServerSession(authOptions); // Explicitly pass authOptions
+  const session = await getServerSession(authOptions);
+
+  // Add a small delay to let the middleware handle the role check first
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   if (session?.user?.role !== "admin") {
     redirect('/');
