@@ -22,7 +22,10 @@ export default withAuth(
 
     // Role-based redirects
     if (isAuthenticated) {
-     
+      const userRole = req.nextauth.token?.role;
+      if (pathname.startsWith('/admin') && userRole !== 'admin') {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
     }
 
     return NextResponse.next()

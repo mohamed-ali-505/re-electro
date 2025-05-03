@@ -81,7 +81,7 @@ export const authOptions: AuthOptions = {
                 token.userId = userExists.id;
                 token.email = userExists.email;
                 token.name = userExists.name;
-                token.role = userExists.role;
+                token.role = userExists.role as "admin" | "user" | "superAdmin";
             }
             return token;
         },
