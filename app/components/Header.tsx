@@ -1,15 +1,15 @@
 "use client"
 import Link from "next/link"
-import { Leaf, User } from "lucide-react"
+import { Leaf, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { signOut, useSession } from "next-auth/react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState } from "react"
 
 export default function Header() {
-
   const session = useSession();
-  console.log("session", session);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     signOut();
@@ -38,30 +38,72 @@ export default function Header() {
               <Link href="/about" className="text-sm font-medium text-white hover:text-green-100">
                 About Us
               </Link>
-              {session?.data?.user.role === "user" && <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
-                Profile
-              </Link>}
+              {session?.data?.user.role === "admin" && (
+                <Link href="/admin" className="text-sm font-medium text-white hover:text-green-100">
+                  Admin Page
+                </Link>
+              )}
+              {session?.data?.user.role === "user" && (
+                <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
+                  Profile
+                </Link>
+              )}
             </nav>
-            <div className="flex md:hidden space-x-8">
-              <DropdownMenu >
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="rounded-full h-8 w-8">
-                    <User className="h-4 w-4" />
-                    <span className="sr-only">User menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-500">Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
-          <div className="flex items-center space-x-4">
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64 bg-white">
+                <nav className="flex flex-col space-y-4 mt-8">
+                  <Link href="/features" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                    Features
+                  </Link>
+                  <Link href="/process" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                    Our Process
+                  </Link>
+                  <Link href="/points" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                    Points & Discounts
+                  </Link>
+                  <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                    About Us
+                  </Link>
+                  {session?.data?.user.role === "admin" && (
+                    <Link href="/admin" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                      Admin Page
+                    </Link>
+                  )}
+                  {session?.data?.user.role === "user" && (
+                    <Link href="/profile" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                      Profile
+                    </Link>
+                  )}
+                  {!session?.data?.user && (
+                    <>
+                      <Link href="/signup" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                        Corporate Signup
+                      </Link>
+                      <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
+                        Corporate Login
+                      </Link>
+                    </>
+                  )}
+                  {session?.data?.user && (
+                    <Button variant="ghost" className="text-gray-700 hover:text-green-600" onClick={() => { handleLogout(); setIsSidebarOpen(false); }}>
+                      Logout
+                    </Button>
+                  )}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          <div className="hidden md:flex items-center space-x-4">
             <Link href="/recycle">
               <Button className="bg-white text-gray-900 hover:bg-gray-100 font-medium">Recycle Now</Button>
             </Link>
@@ -77,7 +119,7 @@ export default function Header() {
         </div>
 
         {/* Corporate Buttons */}
-        {!session?.data?.user && <div className="flex justify-center space-x-4 py-4 border-t border-green-500">
+        {!session?.data?.user && <div className="hidden md:flex justify-center space-x-4 py-4 border-t border-green-500">
           <Link href="/signup">
             <Button className="bg-gray-900 hover:bg-gray-800 text-white font-medium">Corporate Signup</Button>
           </Link>
