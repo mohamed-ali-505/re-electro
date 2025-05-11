@@ -3,7 +3,7 @@ import { AdminSidebar } from "./_components/admin-sidebar"
 import { AdminHeader } from "./_components/admin-header"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -17,9 +17,9 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
 
   console.log(session);
   
-  if (session?.user?.role !== "admin") {
-    redirect('/');
-  }
+  // if (session?.user?.role !== "admin") {
+  //   // redirect('/');
+  // }
 
   return (
     <div className="min-h-screen flex flex-col">
