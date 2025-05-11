@@ -15,6 +15,8 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   // Add a small delay to let the middleware handle the role check first
   await new Promise(resolve => setTimeout(resolve, 100));
 
+  console.log(session);
+  
   if (session?.user?.role !== "admin") {
     redirect('/');
   }
