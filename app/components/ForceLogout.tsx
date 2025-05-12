@@ -6,19 +6,27 @@ import { signOut, useSession } from "next-auth/react"
 export default function ForceLogout() {
   const { data: session } = useSession();
 
-  const handleForceLogout = () => {
+  const handleForceLogout = async () => {
+    // First, log out if user is logged in
     if (session) {
-      // If user is logged in, perform proper logout
-      signOut();
-    } else {
-      // If not logged in, just clear cookies and reload
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
-      window.location.reload();
+      await signOut({ redirect: false });
     }
+
+    // Then clear all cookies
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+
+    // Clear any local storage items
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Finally, reload the page
+    window.location.reload();
   };
 
   return (
