@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Facebook, Twitter, Instagram } from 'lucide-react'
+import ForceLogout from './ForceLogout'
 
 export default function Footer() {
   return (
@@ -18,6 +19,7 @@ export default function Footer() {
             <span className="sr-only">Instagram</span>
             <Instagram className="h-6 w-6" />
           </Link>
+          <ForceLogout />
         </div>
         <div className="mt-8 md:mt-0 md:order-1">
           <p className="text-center text-base text-gray-400">
