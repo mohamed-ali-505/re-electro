@@ -282,9 +282,13 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                         <span className={`text-xs px-2 py-1 rounded-full ${
-                          request.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
+                          request.status === 'completed' ? 'bg-green-500 text-white' :
+                          request.status === 'delivered' ? 'bg-green-500 text-white' :
+                          request.status === 'pending' ? 'bg-yellow-500 text-white' :
+                          request.status === 'onDelivery' ? 'bg-blue-500 text-white' :
+                          request.status === 'rejected' ? 'bg-red-500 text-white' :
+                          request.status === 'accepted' ? 'bg-purple-500 text-white' :
+                          'bg-gray-500 text-white'
                         }`}>
                           {request.status}
                         </span>
