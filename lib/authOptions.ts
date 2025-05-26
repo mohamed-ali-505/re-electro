@@ -7,7 +7,7 @@ import Users from "@/models/Users";
 export const authOptions: AuthOptions = {
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // Session duration: 30 days (1 month)
+        maxAge: 90 * 24 * 60 * 60, // Session duration: 90 days (3 months)
     },
     secret: process.env.NEXTAUTH_SECRET,
     jwt: {
