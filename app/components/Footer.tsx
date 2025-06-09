@@ -1,11 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { Facebook, Twitter, Instagram } from 'lucide-react'
-import ForceLogout from './ForceLogout'
-import { useSession } from 'next-auth/react';
+// import ForceLogout from './ForceLogout'
+// import { useSession } from 'next-auth/react';
 
 export default function Footer() {
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
   return (
     <footer className="bg-white">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
@@ -22,9 +22,9 @@ export default function Footer() {
             <span className="sr-only">Instagram</span>
             <Instagram className="h-6 w-6" />
           </Link>
-          <ForceLogout />
+          {/* <ForceLogout /> */}
           <>
-          {JSON.stringify(session)}
+          {/* {JSON.stringify(session)} */}
           </>
         </div>
         <div className="mt-8 md:mt-0 md:order-1">
