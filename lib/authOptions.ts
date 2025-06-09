@@ -21,6 +21,7 @@ export const authOptions: AuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                console.log("credentials", credentials);
                 await dbConnect();
 
                 if (!credentials?.email || !credentials?.password) {
@@ -63,6 +64,7 @@ export const authOptions: AuthOptions = {
     ],
     callbacks: {
         async jwt({ token }) {
+            console.log("token", token);
             const userExists = await Users.findOne({ email: token.email });
 
             if (!userExists) {
@@ -86,7 +88,7 @@ export const authOptions: AuthOptions = {
             return token;
         },
         async session({ session, token }) {
-
+            console.log("session", session);
             if (token.isValid === false) {
                 return {
                     user: undefined,

@@ -45,7 +45,7 @@ export default function Header() {
               )}
               {session?.data?.user.role === "user" && (
                 <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
-                  Profile
+                Profile
                 </Link>
               )}
             </nav>
@@ -96,7 +96,7 @@ export default function Header() {
                   {session?.data?.user && (
                     <Button variant="ghost" className="text-gray-700 hover:text-green-600" onClick={() => { handleLogout(); setIsSidebarOpen(false); }}>
                       Logout
-                    </Button>
+                  </Button>
                   )}
                 </nav>
               </SheetContent>

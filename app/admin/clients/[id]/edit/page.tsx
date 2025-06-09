@@ -86,7 +86,7 @@ export default function EditClientPage({ params }: EditClientPageProps) {
       
       if (response.data) {
         toast.success("Client updated successfully!")
-        router.push("/admin/clients")
+      router.push("/admin/clients")
       } else {
         throw new Error("No data received from server")
       }
