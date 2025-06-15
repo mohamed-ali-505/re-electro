@@ -10,8 +10,9 @@ import { useState } from 'react'
 import { Form } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
 import InputForm from '@/components/form/Input-form'
-import { signIn } from 'next-auth/react'
+// import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/AuthProvider'
 
 export default function CorporateLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -24,6 +25,7 @@ export default function CorporateLogin() {
   const [resendMessage, setResendMessage] = useState<string | null>(null)
   const [verifyLoading, setVerifyLoading] = useState(false);
   const form = useForm()
+  const context = useAuth()
 
   const onSubmit = async (data: any) => {
     setErrorMessage(null);
@@ -36,14 +38,27 @@ export default function CorporateLogin() {
     }
 
     setIsSubmitting(true)
+    // ...existing code...
+
     try {
       // Call NextAuth's signIn function with credentials
-      const result = await signIn('credentials', {
-        redirect: false, // Prevent automatic redirection
-        email: data.email,
-        password: data.password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
       });
 
+      let result: { error?: string, data?: { id: string, role: string } } = {};
+      if (response.headers.get('content-type')?.includes('application/json')) {
+        result = await response.json();
+      }
+
+      console.log(result);
 
       if (result?.error) {
         setIsSubmitting(false)
@@ -67,14 +82,21 @@ export default function CorporateLogin() {
         }
       } else {
         setIsSubmitting(false)
-        router.refresh();
-        router.replace('/');
+        if (result.data) {
+          context?.setSession({
+            id: result.data.id,
+            role: result.data.role,
+          });
+          router.refresh();
+          router.replace('/');
+        }
       }
     } catch (error) {
       // Handle any unexpected errors
       console.error('Unexpected error:', error);
       // setErrorMessage('Unexpected error occurred. Please try again.'); // Display general error
     }
+    // ...existing code...
   };
 
   // Handler for verification input submission

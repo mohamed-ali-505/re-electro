@@ -3,16 +3,21 @@ import Link from "next/link"
 import { Leaf, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { signOut, useSession } from "next-auth/react"
+// import { signOut, useSession } from "next-auth/react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
+import { handleLogout } from "@/actions/cookies"
+import { useAuth } from "@/lib/AuthProvider"
 
 export default function Header() {
-  const session = useSession();
+  // const session = useSession();
+  const context = useAuth();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleLogout = () => {
-    signOut();
+  const handleLogoutFunc = async () => {
+    await handleLogout();
+    context?.setSession(null);
   }
 
   return (
@@ -38,14 +43,14 @@ export default function Header() {
               <Link href="/about" className="text-sm font-medium text-white hover:text-green-100">
                 About Us
               </Link>
-              {session?.data?.user.role === "admin" && (
+              {context?.session?.role === "admin" && (
                 <Link href="/admin" className="text-sm font-medium text-white hover:text-green-100">
                   Admin Page
                 </Link>
               )}
-              {session?.data?.user.role === "user" && (
+              {context?.session?.role === "user" && (
                 <Link href="/profile" className="text-sm font-medium text-white hover:text-green-100">
-                Profile
+                  Profile
                 </Link>
               )}
             </nav>
@@ -73,17 +78,17 @@ export default function Header() {
                   <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
                     About Us
                   </Link>
-                  {session?.data?.user.role === "admin" && (
+                  {context?.session?.role === "admin" && (
                     <Link href="/admin" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
                       Admin Page
                     </Link>
                   )}
-                  {session?.data?.user.role === "user" && (
+                  {context?.session?.role === "user" && (
                     <Link href="/profile" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
                       Profile
                     </Link>
                   )}
-                  {!session?.data?.user && (
+                  {!context?.session && (
                     <>
                       <Link href="/signup" className="text-sm font-medium text-gray-700 hover:text-green-600" onClick={() => setIsSidebarOpen(false)}>
                         Corporate Signup
@@ -93,10 +98,13 @@ export default function Header() {
                       </Link>
                     </>
                   )}
-                  {session?.data?.user && (
-                    <Button variant="ghost" className="text-gray-700 hover:text-green-600" onClick={() => { handleLogout(); setIsSidebarOpen(false); }}>
+                  {context?.session && (
+                    <Button variant="ghost" className="text-gray-700 hover:text-green-600" onClick={() => {
+                      // handleLogout();
+                      setIsSidebarOpen(false);
+                    }}>
                       Logout
-                  </Button>
+                    </Button>
                   )}
                 </nav>
               </SheetContent>
@@ -107,10 +115,10 @@ export default function Header() {
             <Link href="/recycle">
               <Button className="bg-white text-gray-900 hover:bg-gray-100 font-medium">Recycle Now</Button>
             </Link>
-            {session?.data?.user && <Button
+            {context?.session && <Button
               variant={"outline"}
               onClick={() => {
-                handleLogout();
+                handleLogoutFunc();
               }}
             >
               Logout
@@ -119,7 +127,7 @@ export default function Header() {
         </div>
 
         {/* Corporate Buttons */}
-        {!session?.data?.user && <div className="hidden md:flex justify-center space-x-4 py-4 border-t border-green-500">
+        {!context?.session && <div className="hidden md:flex justify-center space-x-4 py-4 border-t border-green-500">
           <Link href="/signup">
             <Button className="bg-gray-900 hover:bg-gray-800 text-white font-medium">Corporate Signup</Button>
           </Link>

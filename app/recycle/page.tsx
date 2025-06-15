@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label"
 import { ImageUpload } from "../components/ImageUpload"
 
 import axios from "axios"
-import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import { useAuth } from "@/lib/AuthProvider"
 
 interface UserData {
   name: string
@@ -35,11 +35,11 @@ export default function RecyclePage() {
     address: "",
     items: ""
   })
-  const user = useSession()
+  const context = useAuth()
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/users/' + user.data?.user.userId)
+      const response = await axios.get('/api/users/' + context?.session?.id)
       setUserData(response.data)
       setFormData((prev) => ({
         ...prev,
@@ -55,7 +55,7 @@ export default function RecyclePage() {
   }
 
   useEffect(() => {
-    if (user.status === "authenticated") {
+    if (context?.session) {
       fetchUserData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,10 +85,8 @@ export default function RecyclePage() {
       toast.success("Request created successfully!")
       setIsSubmitting(false)
 
-      console.log(user.status)
-
       // Reset form fields after successful submission
-      if (user.status === "authenticated" && userData) {
+      if (context?.session && userData) {
         setFormData((prev) => ({
           ...prev,
           name: userData.name,

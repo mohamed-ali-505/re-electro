@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Pencil, Save, X } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/lib/AuthProvider'
 
 interface UserData {
   name: string
@@ -50,7 +50,7 @@ export default function ProfilePage() {
   const [editedName, setEditedName] = useState('')
   const [redemptionHistory, setRedemptionHistory] = useState<RedemptionRequest[]>([])
 
-  const user = useSession()
+  const context = useAuth()
 
   useEffect(() => {
     fetchUserData()
@@ -60,7 +60,7 @@ export default function ProfilePage() {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/users/' + user.data?.user.userId)
+      const response = await axios.get('/api/users/' + context?.session?.id)
       setUserData(response.data)
 
     } catch (error) {
@@ -71,7 +71,7 @@ export default function ProfilePage() {
 
   const fetchRedemptionHistory = async () => {
     try {
-      const response = await axios.get('/api/redemptions/users/' + user.data?.user.userId)
+      const response = await axios.get('/api/redemptions/users/' + context?.session?.id)
       setRedemptionHistory(response.data)
     } catch (error) {
       console.error('Error fetching redemption history:', error)

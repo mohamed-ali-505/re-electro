@@ -1,16 +1,16 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { signOut, useSession } from "next-auth/react"
+// import { signOut, useSession } from "next-auth/react"
 
 export default function ForceLogout() {
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
 
   const handleForceLogout = async () => {
     // First, log out if user is logged in
-    if (session) {
-      await signOut({ redirect: false });
-    }
+    // if (session) {
+    //   await signOut({ redirect: false });
+    // }
 
     // Then clear all cookies
     const cookies = document.cookie.split(";");

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import AppProvider from "@/lib/AppProvider";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { AuthProvider } from "@/lib/AuthProvider";
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,21 +26,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions) // Explicitly pass authOptions
-  console.log("session", session);
-  
 
   return (
     <html lang="en">
-
-      <AppProvider session={session}>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <AuthProvider>
           {children}
-          <Toaster richColors />
-        </body>
-      </AppProvider>
+        </AuthProvider>
+        <Toaster richColors />
+      </body>
     </html>
   );
 }

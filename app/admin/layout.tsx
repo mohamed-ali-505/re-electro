@@ -1,8 +1,6 @@
 import type { ReactNode } from "react"
 import { AdminSidebar } from "./_components/admin-sidebar"
 import { AdminHeader } from "./_components/admin-header"
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
 // import { redirect } from "next/navigation";
 
 interface AdminLayoutProps {
@@ -10,12 +8,10 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  const session = await getServerSession(authOptions);
 
   // Add a small delay to let the middleware handle the role check first
-  await new Promise(resolve => setTimeout(resolve, 100));
+  // await new Promise(resolve => setTimeout(resolve, 100));
 
-  console.log(session);
   
   // if (session?.user?.role !== "admin") {
   //   // redirect('/');
