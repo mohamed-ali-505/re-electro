@@ -126,7 +126,7 @@ export default function CorporateSignup() {
           <CardFooter>
             <div className="text-sm text-gray-500">
               Already have an account?{' '}
-              <Link href="/corporate/login" className="text-green-600 hover:text-green-500">
+              <Link href="/login" className="text-green-600 hover:text-green-500">
                 Sign in here
               </Link>
             </div>

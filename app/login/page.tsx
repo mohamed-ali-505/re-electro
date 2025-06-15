@@ -250,12 +250,12 @@ export default function CorporateLogin() {
             )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Link
+            {/* <Link
               href="/forgot-password"
               className="text-sm text-green-600 hover:text-green-500"
             >
               Forgot your password?
-            </Link>
+            </Link> */}
             <div className="text-sm text-gray-500">
               Don't have a corporate account?{' '}
               <Link href="/signup" className="text-green-600 hover:text-green-500">
