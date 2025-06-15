@@ -12,12 +12,17 @@ import { useAuth } from "@/lib/AuthProvider"
 export default function Header() {
   // const session = useSession();
   const context = useAuth();
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogoutFunc = async () => {
-    await handleLogout();
-    context?.setSession(null);
+    setLogoutLoading(true);
+    await handleLogout().finally(() => {
+      context?.setSession(null);
+      setLogoutLoading(false);
+    });
+
   }
 
   return (
@@ -120,8 +125,12 @@ export default function Header() {
               onClick={() => {
                 handleLogoutFunc();
               }}
+              disabled={logoutLoading}
             >
-              Logout
+              {logoutLoading ? <span>
+                <span className="animate-spin flex w-4 h-4 border-2 rounded-full
+                 border-t-green-500 border-r-green-500 border-b-green-500"></span>
+              </span> : "Logout"}
             </Button>}
           </div>
         </div>
