@@ -18,6 +18,7 @@ export default function RequestsPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<UsersType[]>([])
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 
@@ -46,10 +47,10 @@ export default function RequestsPage() {
   const fetchData = async () => {
     try {
       const response = await axios.get(`/api/users`);
-      // setLoading(false);
+      setLoading(false);
       setData(response.data);
     } catch {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -98,13 +99,16 @@ export default function RequestsPage() {
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Corporate Requests</h1>
-          <p className="text-muted-foreground">Manage all corporate Requests registered in the system.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+          {/* <p className="text-muted-foreground">Manage all corporate Requests registered in the system.</p> */}
         </div>
 
       </div>
