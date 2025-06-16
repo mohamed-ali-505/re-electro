@@ -53,30 +53,27 @@ export default function CorporateLogin() {
         }),
       });
 
-      let result: { error?: string, data?: { id: string, role: string } } = {};
-      if (response.headers.get('content-type')?.includes('application/json')) {
-        result = await response.json();
-      }
+      
+      const result = await response.json();
 
       console.log(result);
 
       if (result?.error) {
         setIsSubmitting(false)
         // If there's an error, update the error message state
-        const errors = JSON.parse(result.error)
-        if (errors.email) {
-          form.setError("email", { type: "manual", message: errors.email });
+        if (result.email) {
+          form.setError("email", { type: "manual", message: result.email });
         }
-        if (errors.password) {
-          form.setError("password", { type: "manual", message: errors.password });
+        if (result.password) {
+          form.setError("password", { type: "manual", message: result.password });
         }
-        if (errors.isActive) {
-          setErrorMessage(errors.isActive);
+        if (result.isActive) {
+          setErrorMessage(result.isActive);
         }
-        if (errors.notAllow) {
-          setErrorMessage(errors.notAllow);
+        if (result.notAllow) {
+          setErrorMessage(result.notAllow);
         }
-        if (errors.notVerified) {
+        if (result.notVerified) {
           // If the backend returns a notVerified error, show the dialog
           setShowVerifyDialog(true)
         }
