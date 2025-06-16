@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
 import { handleLogout } from "@/actions/cookies"
 import { useAuth } from "@/lib/AuthProvider"
-
+import { toast } from "sonner"
 export default function Header() {
   // const session = useSession();
   const context = useAuth();
@@ -21,6 +21,7 @@ export default function Header() {
     await handleLogout().finally(() => {
       context?.setSession(null);
       setLogoutLoading(false);
+      toast.success("Logged out successfully");
     });
 
   }
@@ -105,7 +106,7 @@ export default function Header() {
                   )}
                   {context?.session && (
                     <Button variant="ghost" className="text-gray-700 hover:text-green-600" onClick={() => {
-                      // handleLogout();
+                      handleLogoutFunc();
                       setIsSidebarOpen(false);
                     }}>
                       Logout
