@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 interface DiscountRedemption {
   _id: string
   points: number
-  discountId: {
+  discountId?: {
     name: string
     specialization: string
     discountPercentage: number
@@ -120,7 +120,7 @@ export default function DiscountRedemptionsPage() {
                       <p className="text-sm text-muted-foreground">{request.userId.email}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{request.discountId.name}</span>
+                      <span className="text-sm font-medium">{request.discountId?.name}</span>
                       <span className="text-sm text-muted-foreground">({request.points} points)</span>
                     </div>
                   </div>
@@ -144,10 +144,10 @@ export default function DiscountRedemptionsPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium">Discount Details</p>
-                      <p>Name: {request.discountId.name}</p>
-                      <p>Specialization: {request.discountId.specialization}</p>
-                      <p>Discount: {request.discountId.discountPercentage}%</p>
-                      <p>Points Required: {request.discountId.pointsRequired}</p>
+                      <p>Name: {request.discountId?.name}</p>
+                      <p>Specialization: {request.discountId?.specialization}</p>
+                      <p>Discount: {request.discountId?.discountPercentage}%</p>
+                      <p>Points Required: {request.discountId?.pointsRequired}</p>
                     </div>
                   </div>
                   {request.status === 'pending' && (

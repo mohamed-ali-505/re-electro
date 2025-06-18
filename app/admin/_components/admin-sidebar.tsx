@@ -13,6 +13,10 @@ import {
   SidebarMenuButton,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/lib/AuthProvider"
+import { useState } from "react"
+import { handleLogout } from "@/actions/cookies"
+import { toast } from "sonner"
 
 export function AdminSidebar() {
   const pathname = usePathname()
@@ -49,6 +53,20 @@ export function AdminSidebar() {
       icon: Receipt,
     },
   ]
+
+  const context = useAuth();
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
+
+  const handleLogoutFunc = async () => {
+    setLogoutLoading(true);
+    await handleLogout().finally(() => {
+      context?.setSession(null);
+      setLogoutLoading(false);
+      toast.success("Logged out successfully");
+    });
+
+  }
 
   return (
     <SidebarProvider>
@@ -90,10 +108,23 @@ export function AdminSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/admin/logout" className="flex items-center text-red-500 hover:text-red-600">
-                  <LogOut className="h-5 w-5 mr-3" />
+                {/* <Button variant="ghost" className="text-gray-700 hover:text-green-600" onClick={() => {
+                  handleLogoutFunc();
+                  setIsSidebarOpen(false);
+                }}>
+                  Logout
+                </Button> */}
+                <div className="flex items-center text-red-500 hover:text-red-600 cursor-pointer" onClick={() => {
+                  handleLogoutFunc();
+                }}>
+                  {logoutLoading ?
+                    <span>
+                      <span className="animate-spin flex w-4 h-4 border-2 rounded-full
+                       border-t-green-500 border-r-green-500 border-b-green-500"></span>
+                    </span>
+                  : <LogOut className="h-5 w-5 mr-3" />}
                   <span>Logout</span>
-                </Link>
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
